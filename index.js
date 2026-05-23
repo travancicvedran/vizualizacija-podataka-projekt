@@ -441,6 +441,8 @@ function renderTab0(mapData) {
                           <span>Expected rate</span>
                           <span class="t-val">${d.pct.toFixed(1)}%</span>
                         </div>`);
+				d3.select(ev.currentTarget)
+					.attr('fill', 'white');
 				return;
 			}
 			showTT(ev, `<strong>${d.map.toUpperCase()}</strong>
@@ -638,13 +640,13 @@ function renderTab1(sideData) {
 		.attr('height', 0)
 		.attr('rx', 2)
 		.attr('fill', d => d.isAvg ? 'var(--average)' : 'url(#gCT)')
-    .attr('stroke', d => d.isAvg ? 'var(--border)' : 'none')
-    .attr('stroke-width', 1)
+		.attr('stroke', d => d.isAvg ? 'var(--border)' : 'none')
+		.attr('stroke-width', 1)
 		.on('mousemove', onEnter)
-    .on('mouseleave', onLeave)
-    .transition().duration(800).delay((d, i) => i * 55).ease(d3.easeCubicOut)
-    .attr('y', 0)
-    .attr('height', d => y(100 - d.ctPct));
+		.on('mouseleave', onLeave)
+		.transition().duration(800).delay((d, i) => i * 55).ease(d3.easeCubicOut)
+		.attr('y', 0)
+		.attr('height', d => y(100 - d.ctPct));
 
 	g.selectAll('.bT')
 		.data(fullData)
@@ -656,13 +658,13 @@ function renderTab1(sideData) {
 		.attr('height', 0)
 		.attr('rx', 2)
 		.attr('fill', d => d.isAvg ? 'var(--average)' : 'url(#gT)')
-    .attr('stroke', d => d.isAvg ? 'var(--border)' : 'none')
-    .attr('stroke-width', 1)
+		.attr('stroke', d => d.isAvg ? 'var(--border)' : 'none')
+		.attr('stroke-width', 1)
 		.on('mousemove', onEnter)
-    .on('mouseleave', onLeave)
-    .transition().duration(800).delay((d, i) => i * 55).ease(d3.easeCubicOut)
-    .attr('y', d => y(100 - d.ctPct))
-    .attr('height', d => INNER_H - y(100 - d.ctPct));
+		.on('mouseleave', onLeave)
+		.transition().duration(800).delay((d, i) => i * 55).ease(d3.easeCubicOut)
+		.attr('y', d => y(100 - d.ctPct))
+		.attr('height', d => INNER_H - y(100 - d.ctPct));
 
 	g.selectAll('.divL')
 		.data(fullData)
