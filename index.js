@@ -41,11 +41,16 @@ const didAnimate = {
 };
 
 let G = {
-	mapData: [],
-	sideData: [],
-	pieData: [],
-	timeData: []
+    mapData: [],
+    sideData: [],
+    pieData: [],
+    timeData: [],
+    rawRows: []
 };
+
+let selectedMaps = new Set(Object.keys(MAP_ICONS));
+
+let sort0Asc = false;
 
 /* ================================================
    TOOLTIP
@@ -85,6 +90,23 @@ function switchTab(idx) {
 		didAnimate[2] = true;
 		renderTab2(G.pieData);
 	}
+	refreshActiveTab();
+}
+
+function refreshActiveTab() {
+	const activeIdx = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
+
+	const filterByMap = arr => arr.filter(d => selectedMaps.has(d.map));
+
+	if (activeIdx === 0) {
+		const data = [...G.mapData]
+			.filter(d => selectedMaps.has(d.map))
+			.sort((a, b) => sort0Asc ? a.pct - b.pct : b.pct - a.pct);
+		renderTab0(data);
+	}
+	else if (activeIdx === 1) renderTab1(filterByMap(G.sideData));
+	else if (activeIdx === 2) renderTab4(parseTimeData(G.rawRows, selectedMaps));
+	else if (activeIdx === 3) renderTab2(filterByMap(G.pieData));
 }
 
 /* ================================================
@@ -162,6 +184,48 @@ function triggerFadeUp(el) {
 	el.classList.remove('do-fade-up');
 	void el.offsetWidth;
 	el.classList.add('do-fade-up');
+}
+
+function buildFilterBar() {
+	const grid = document.getElementById('map-filter-grid');
+	if (!grid) return;
+	grid.innerHTML = '';
+
+	Object.entries(MAP_ICONS).forEach(([map, iconUrl]) => {
+		const cell = document.createElement('label');
+		cell.className = 'map-filter-cell';
+		cell.title = map;
+
+		const img = document.createElement('img');
+		img.src = iconUrl;
+		img.alt = map;
+
+		const name = document.createElement('span');
+		name.textContent = map;
+
+		const cb = document.createElement('input');
+		cb.type = 'checkbox';
+		cb.checked = true;
+		cb.addEventListener('change', () => {
+			if (cb.checked) {
+				selectedMaps.add(map);
+				cell.classList.remove('disabled');
+			} else {
+				if (selectedMaps.size === 1) {
+				cb.checked = true;
+				return;
+				}
+				selectedMaps.delete(map);
+				cell.classList.add('disabled');
+			}
+			refreshActiveTab();
+		});
+
+		cell.appendChild(img);
+		cell.appendChild(name);
+		cell.appendChild(cb);
+		grid.appendChild(cell);
+	});
 }
 
 /* ================================================
@@ -288,6 +352,8 @@ function parseAll(csvText) {
 			pick3Count: v.pick3
 		}));
 
+	G.rawRows = rows;
+
 	return {
 		mapData,
 		sideData,
@@ -300,29 +366,44 @@ function parseAll(csvText) {
 /* ================================================
    PARSE TIME DATA — matches per year-month
 ================================================ */
-function parseTimeData(rows) {
-	const counts = {};
+function parseTimeData(rows, mapsFilter) {
+    const counts = {};
 
-	rows.forEach(row => {
-		const raw = (row.date || row.Date || '').trim();
-		if (!raw) return;
+    rows.forEach(row => {
+        const rowMaps = [row['M1'], row['M2'], row['M3']]
+            .map(m => (m || '').trim())
+            .filter(m => m && m !== '-');
 
-		const key = raw.slice(0, 7);
+        if (mapsFilter && !rowMaps.some(m => mapsFilter.has(m))) return;
 
-		counts[key] = (counts[key] || 0) + 1;
-	});
+        const raw = (row.date || row.Date || '').trim();
+        if (!raw) return;
 
-	return Object.entries(counts)
-		.map(([key, count]) => ({
-			key,
-			year: Number(key.slice(0, 4)),
-			month: Number(key.slice(5, 7)),
-			count
-		}))
-		.sort((a, b) => a.key.localeCompare(b.key));
+        const key = raw.slice(0, 7);
+        counts[key] = (counts[key] || 0) + 1;
+    });
+
+    return Object.entries(counts)
+        .map(([key, count]) => ({
+            key,
+            year: Number(key.slice(0, 4)),
+            month: Number(key.slice(5, 7)),
+            count
+        }))
+        .sort((a, b) => a.key.localeCompare(b.key));
 }
 
 /* =================== TAB 0 =================== */
+function toggleSort0() {
+	sort0Asc = !sort0Asc;
+	const btn = document.getElementById('sort-btn-0');
+	btn.textContent = sort0Asc ? 'Count ↓' : 'Count ↑';
+	const data = sort0Asc
+		? [...G.mapData].filter(d => selectedMaps.has(d.map)).sort((a, b) => a.pct - b.pct)
+		: [...G.mapData].filter(d => selectedMaps.has(d.map)).sort((a, b) => b.pct - a.pct);
+	renderTab0(data);
+}
+
 function renderTab0(mapData) {
 	document.getElementById('pills-0').style.display = 'flex';
 	document.getElementById('leg0').style.display = 'flex';
@@ -727,6 +808,7 @@ function renderTab1(sideData) {
 function renderPie(cardId, pieData, valueKey, countKey, subLabel) {
 	const card = document.getElementById(cardId);
 	card.querySelector('.loading-state')?.remove();
+	card.querySelector('.pie-svg-wrap')?.remove();
 
 	const sorted = [...pieData].sort((a, b) => b[valueKey] - a[valueKey]);
 	const colorMap = {};
@@ -1248,6 +1330,7 @@ window.addEventListener('DOMContentLoaded', () => {
 			/* populate comparison dropdowns */
 			const mapSet = new Set([...G.mapData.map(d => d.map), ...G.sideData.map(d => d.map), ...G.pieData.map(d => d.map)]);
 			populateDropdowns([...mapSet].sort());
+			buildFilterBar();
 		})
 		.catch(err => {
 			['cc0', 'cc1'].forEach(id => {
