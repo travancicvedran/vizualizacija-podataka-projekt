@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS Matches Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/?size=100&id=jzahITKncvRL&format=png&color=000000">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel=stylesheet href="index.css">
+    <script src="index.js" defer></script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <div class="logo-area">
+          <div class="logo-text">
+            <span class="logo-title">Counter Strike Matches Analysis</span>
+            <span class="logo-sub">Projekt za kolegij Vizualizacija podataka</span>
+          </div>
+        </div>
+      </header>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(0)">Map Win Rate</button>
+        <button class="tab-btn" onclick="switchTab(1)">Side Analysis</button>
+        <button class="tab-btn" onclick="switchTab(2)">Match Timeline</button>
+        <button class="tab-btn" onclick="switchTab(3)">Map Preferences</button>
+        <button class="tab-btn" onclick="switchTab(4)">Map Comparison</button>
+      </div>
+      <!-- TAB 0 -->
+      <div class="tab-panel active" id="panel-0">
+        <div class="chart-section-header">
+          <div>
+            <div class="chart-title">Expected Result Rate by Map</div>
+            <div class="chart-subtitle">% of maps won by the higher-ranked team</div>
+          </div>
+          <div class="stat-pills" id="pills-0" style="display:none">
+            <div class="stat-pill">
+              <strong id="p0-total">—</strong>
+            </div>
+          </div>
+        </div>
+        <div class="chart-frame">
+          <div class="chart-frame-inner">
+            <div class="chart-container" id="cc0">
+              <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">LOADING DATA…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend" id="leg0" style="display:none">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--gold)"></div>Expected result %
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--average);border:1px solid var(--border)"></div>All-map average
+          </div>
+          <div class="legend-item">
+            <div class="legend-dash" style="border-color:var(--red-ref)"></div>Average reference
+          </div>
+        </div>
+      </div>
+      <!-- TAB 1 -->
+      <div class="tab-panel" id="panel-1">
+        <div class="chart-section-header">
+          <div>
+            <div class="chart-title">CT vs T Side Round Distribution</div>
+            <div class="chart-subtitle">Share of total rounds won per side</div>
+          </div>
+          <div class="stat-pills" id="pills-1" style="display:none">
+            <div class="stat-pill">
+              <strong id="p1-rounds">—</strong>
+            </div>
+          </div>
+        </div>
+        <div class="chart-frame" id="frame-1">
+          <div class="chart-frame-inner">
+            <div class="chart-container" id="cc1">
+              <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">LOADING DATA…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend" id="leg1" style="display:none">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--navy)"></div>CT rounds
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--gold)"></div>T rounds
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--average);border:1px solid var(--border)"></div>All-map average
+          </div>
+          <div class="legend-item">
+            <div class="legend-dash" style="border-color:var(--red-ref)"></div>50% balance
+          </div>
+        </div>
+      </div>
+      <!-- TAB 2 -->
+      <div class="tab-panel" id="panel-2">
+        <div class="chart-section-header">
+          <div>
+            <div class="chart-title">Match Volume Over Time</div>
+            <div class="chart-subtitle">Total matches played per month</div>
+          </div>
+          <div class="stat-pills" id="pills-4" style="display:none">
+            <div class="stat-pill"><strong id="p4-total">—</strong></div>
+          </div>
+        </div>
+        <div class="chart-frame">
+          <div class="chart-frame-inner">
+            <div class="chart-container" id="cc4">
+              <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">LOADING DATA…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-legend" id="leg4" style="display:none">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--gold)"></div>Matches per month
+          </div>
+          <div class="legend-item">
+            <div class="legend-dash" style="border-color:var(--ct-color)"></div>Annual average
+          </div>
+        </div>
+      </div>
+      <!-- TAB 3 -->
+      <div class="tab-panel" id="panel-3">
+        <div class="pie-section" id="pie-section">
+          <div id="pie-ban-block">
+            <div class="chart-title">Most Disliked Map</div>
+            <div class="chart-subtitle">Ban 1 rate per map pool appearance</div>
+            <div class="pie-card" id="pie-ban">
+              <div class="loading-state" style="width:100%">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">LOADING…</div>
+              </div>
+            </div>
+          </div>
+          <div id="pie-pick-block">
+            <div class="chart-title">Most Neutral / Last Picked</div>
+            <div class="chart-subtitle">Pick 3 (decider) rate per map pool appearance</div>
+            <div class="pie-card" id="pie-pick">
+              <div class="loading-state" style="width:100%">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">LOADING…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- TAB 4 -->
+      <div class="tab-panel" id="panel-4">
+        <div class="chart-section-header">
+          <div>
+            <div class="chart-title">Map Comparison</div>
+            <div class="chart-subtitle">Select two maps to compare stats side by side</div>
+          </div>
+        </div>
+        <div class="compare-layout">
+          <div class="compare-col">
+            <div class="compare-select-wrap">
+              <select class="compare-select" id="sel-left" onchange="updateComparison()">
+                <option value="">— Select map —</option>
+              </select>
+            </div>
+            <div id="cmp-left">
+              <div class="compare-placeholder">
+                <div class="compare-placeholder-icon">x</div>Select a map above
+              </div>
+            </div>
+          </div>
+          <div class="compare-vs-col">
+            <div class="vs-line"></div>
+            <div class="vs-label">VS</div>
+            <div class="vs-line"></div>
+          </div>
+          <div class="compare-col">
+            <div class="compare-select-wrap">
+              <select class="compare-select" id="sel-right" onchange="updateComparison()">
+                <option value="">— Select map —</option>
+              </select>
+            </div>
+            <div id="cmp-right">
+              <div class="compare-placeholder">
+                <div class="compare-placeholder-icon">x</div>Select a map above
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tooltip" class="tooltip"></div>
+</body>
+</html>
