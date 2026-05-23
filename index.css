@@ -19,6 +19,7 @@
     --radius-lg: 6px;
 	--shadow-blue: 0 4px 18px rgba(40, 57, 127, 0.12), 0 1px 6px rgba(40, 57, 127, 0.08);
 	--shadow-gold: 0 4px 16px rgba(252, 172, 25, 0.16), 0 1px 4px rgba(252, 172, 25, 0.10);
+	--red-ref: #e05555;
 }
 
 * {

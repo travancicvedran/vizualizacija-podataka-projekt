@@ -14,7 +14,7 @@ const MAP_ICONS = {
 };
 
 const PIE_COLORS = [
-	'#FCAC19', '#4a8fc9', '#e05555', '#5ec98c', '#a06de0',
+	'#FCAC19', '#4a8fc9', 'var(--red-ref)', '#5ec98c', '#a06de0',
 	'#e07b2a', '#50c8c8', '#c96a9f', '#8fb040'
 ];
 
@@ -32,13 +32,6 @@ const BOTTOM_SP = ICON_PAD + ICON_SIZE + 16 + 14;
 const CHART_H = CM.top + INNER_H + BOTTOM_SP + 8;
 const BAR_COL_W = 96,
 	BAR_PAD = 0.38;
-
-const didAnimate = {
-	0: false,
-	1: false,
-	2: false,
-	4: false
-};
 
 let G = {
     mapData: [],
@@ -74,20 +67,16 @@ function hideTT() {
 function switchTab(idx) {
 	document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
 	document.querySelectorAll('.tab-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
-	if (idx === 0 && !didAnimate[0]) {
-		didAnimate[0] = true;
+	if (idx === 0) {
 		renderTab0(G.mapData);
 	}
-	if (idx === 1 && !didAnimate[1]) {
-		didAnimate[1] = true;
+	if (idx === 1) {
 		renderTab1(G.sideData);
 	}
-	if (idx === 2 && !didAnimate[4]) {
-		didAnimate[4] = true;
+	if (idx === 2) {
 		renderTab4(G.timeData);
 	}
-	if (idx === 3 && !didAnimate[2]) {
-		didAnimate[2] = true;
+	if (idx === 3) {
 		renderTab2(G.pieData);
 	}
 	refreshActiveTab();
@@ -165,7 +154,7 @@ function addRedRef(g, yScale, yVal, innerW, label) {
 	g.append('line')
 		.attr('x1', 0).attr('x2', innerW)
     .attr('y1', yy).attr('y2', yy)
-		.attr('stroke', '#e05555')
+		.attr('stroke', 'var(--red-ref)')
     .attr('stroke-width', 1.5)
 		.attr('stroke-dasharray', '6,4')
     .attr('opacity', 0.85);
@@ -175,7 +164,7 @@ function addRedRef(g, yScale, yVal, innerW, label) {
     .attr('y', yy - 3)
 		.attr('font-family', 'Share Tech Mono')
     .attr('font-size', 9)
-		.attr('fill', '#e05555')
+		.attr('fill', 'var(--red-ref)')
     .attr('opacity', 0.9)
 		.text(label);
 }
@@ -1210,7 +1199,7 @@ function renderTab4(timeData) {
 			.attr('x2', x1)
 			.attr('y1', yScale(avg))
 			.attr('y2', yScale(avg))
-			.attr('stroke', '#e05555')
+			.attr('stroke', 'var(--red-ref)')
 			.attr('stroke-width', 1.5)
 			.attr('stroke-dasharray', '6,4')
 			.attr('opacity', 0.85);
@@ -1324,7 +1313,6 @@ window.addEventListener('DOMContentLoaded', () => {
 			G.pieData = parsed.pieData;
 			G.timeData = parsed.timeData;
 
-			didAnimate[0] = true;
 			renderTab0(G.mapData);
 
 			/* populate comparison dropdowns */
